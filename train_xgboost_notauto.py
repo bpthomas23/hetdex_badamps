@@ -8,17 +8,12 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import confusion_matrix, classification_report
 #from sklearn.ensemble import RandomForestClassifier
 #from sklearn.neighbors import KNeighborsClassifier
-#from sklearn import svm #this is a hunk of junk
+#from sklearn import svm 
 import xgboost as xgb
 import joblib
 import pandas as pd
 
-#calfib_chunk = np.load('/work/06567/bpthomas/stampede2/badamps_project/calfib_chunks/calfib_0_400.npy')
-#calfib_chunk = np.transpose(calfib_chunk, (2, 0, 1))
-#info_chunk = np.load('/work/06567/bpthomas/stampede2/badamps_project/calfib_chunks/info_0_400.npy')
 print('~~~loading data~~~')
-#amp_stats = np.loadtxt('amp_stats.txt', str)
-
 amp_stats = np.load('amp_stats_hdr2.1_notauto.npy',allow_pickle=True)
 amp_stats_df = pd.DataFrame(amp_stats[1:], columns=amp_stats[0])
 
@@ -40,7 +35,6 @@ flags = flags[~mask]
 identifiers = identifiers[~mask]
 
 #i also want to drop two ``date`` features from features; cols 7 and 11
-#kinda janky
 features = features.drop(['Date', 'date'], axis=1)
 
 #now I can convert the whole features array into float
@@ -72,14 +66,6 @@ identifiers = identifiers.iloc[inds]
 
 print(np.sum(labels)/len(labels) * 100, ' percent of the data is good')
 
-"""i can ignore this evaluation option as the model never sees the test set testX,testy during training, it splits the train set trainX,trainy
-into train and test sets. but those are all made from the train set i defined: testX,testy are held out throughout"""
-
-
-#take 30% of the data for an independent evaluation later
-#inputX,evalX,inputy,evaly=train_test_split(features,labels,test_size=0.3,random_state=12,stratify=labels)
-
-
 inputX = features
 inputy = pd.concat([identifiers,labels], axis=1)
 trainX,testX,trainy,testy=train_test_split(inputX,inputy,test_size=0.3,random_state=12,stratify=inputy.iloc[:,3].astype('int'))
@@ -88,24 +74,6 @@ trainid = trainy.iloc[:,:3]
 trainy = trainy.iloc[:,3].astype('int')
 testid = testy.iloc[:,:3]
 testy = testy.iloc[:,3].astype('int')
-
-#initialize param dict
-
-#learning rate = 1
-#n_estimators = 1600 -- improvement flattens to < 0.01% above that
-#gamma = 0
-#max_depth = 10 -- improvement flattens to < 0.01% above that
-#min_child_weight = 0
-#colsample_bytree = 1
-
-#params = {'learning_rate' : [1] , 
-#	  'n_estimators': [1600],
-#	  'gamma': [0],
-#         'max_depth': [10],
-#          'min_child_weight': [0],
-#	  'colsample_bytree': [1],
-#	  'lambda': [1],
-#	  'alpha': [0]}
 
 #load best hyperparameters from hyperopt Bayesian optimization
 best_hp = pd.read_csv('best_hyperparameters.csv', header=None, index_col=0)
@@ -145,10 +113,7 @@ classification_report = classification_report(testy,predy)
 print(confusion_matrix)
 print(classification_report)
 
-#import pickle
-#with open('saved_classifiers/'+model+'.pickle','wb') as savefile:
-#	pickle.dump(classifier,savefile)
 
 joblib.dump(best, 'saved_classifiers/'+model)
-#best.save_model(model+'.json')
+
 np.save('saved_predictions/'+model+'.npy', np.column_stack((testid,testy,predy_proba)))
