@@ -52,7 +52,6 @@ labels = ~flags['flag_badamp_not_auto'].astype('bool')
 labels = labels.astype('int')
 net_labels = flags['flag'].astype('int')
 #labels = labels.astype('int')
-
 #normalise every feature to have zero mean and unit variance
 for feature_name in features.columns:
 	features[feature_name] = features[feature_name] - norms_df['mean'][feature_name]
@@ -98,6 +97,7 @@ testy = testy.iloc[:,3].astype('int')
 #max_depth = 10 -- improvement flattens to < 0.01% above that
 #min_child_weight = 0
 #colsample_bytree = 1
+
 #params = {'learning_rate' : [1] , 
 #	  'n_estimators': [1600],
 #	  'gamma': [0],

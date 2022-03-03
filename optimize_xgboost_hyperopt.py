@@ -1,15 +1,12 @@
 print('~~~loading libraries~~~')
 import numpy as np
-#from build_feature_classifier import BinaryClassifier
+
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
-#from tensorflow.keras.optimizers import Adam
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import confusion_matrix, classification_report
-#from sklearn.ensemble import RandomForestClassifier
-#from sklearn.neighbors import KNeighborsClassifier
-#from sklearn import svm #this is a hunk of junk
+
 import xgboost as xgb
 import joblib
 import pandas as pd
@@ -79,18 +76,6 @@ trainy = trainy.iloc[:,3].astype('int')
 testid = testy.iloc[:,:3]
 testy = testy.iloc[:,3].astype('int')
 
-##taking subset of data for testing
-#trainX = trainX[:10000]
-#trainy = trainy[:10000]
-
-#initialize param dict
-
-#learning rate = 1
-#n_estimators = 1600 -- improvement flattens to < 0.01% above that
-#gamma = 0
-#max_depth = 10 -- improvement flattens to < 0.01% above that
-#min_child_weight = 0
-#colsample_bytree = 1
 
 ##define search space
 
@@ -124,34 +109,3 @@ def evaluate(hp_space):
 best_hp = fmin(fn=evaluate, space=space, algo=tpe.suggest, max_evals=50)
 pd.Series(best_hp).to_csv('best_hyperparameters_20220303.csv', header=False)
 
-"""
-model = 'xgboost_notauto'
-
-best = grid_auc.best_estimator_
-feature_importances = best.feature_importances_
-impidx = feature_importances.argsort()
-plt.barh(features.columns[impidx], feature_importances[impidx])
-plt.xlabel('XGBoost Feature Importance')
-plt.tight_layout()
-plt.savefig('metric_plots/feature_importance'+model+'.pdf')
-plt.close()
-
-
-#classifier = svm.SVC(probability=True)
-#classifier = KNeighborsClassifier(n_jobs=4)
-
-predy_proba = best.predict_proba(testX)
-predy = np.argmax(predy_proba, axis=1)
-
-confusion_matrix = confusion_matrix(testy, predy)
-classification_report = classification_report(testy,predy)
-print(confusion_matrix)
-print(classification_report)
-
-#import pickle
-#with open('saved_classifiers/'+model+'.pickle','wb') as savefile:
-#	pickle.dump(classifier,savefile)
-
-joblib.dump(best, 'saved_classifiers/'+model)
-#best.save_model(model+'.json')
-np.save('saved_predictions/'+model+'.npy', np.column_stack((testid,testy,predy_proba)))"""
